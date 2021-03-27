@@ -1,0 +1,13 @@
+== Setup
+
+[source,bash]
+....
+yarn install
+....
+
+== Grab/Update schema
+
+[source,bash]
+....
+npx apollo client:download-schema --endpoint=http://localhost:4000 schema.graphql
+....
