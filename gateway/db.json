@@ -1,0 +1,59 @@
+{
+    "agents": [
+        {
+            "id": 1,
+            "name": "Travis",
+            "permissions": [
+                "AGENT_READ"
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Carmen McCallum",
+            "permissions": [
+                "AGENT_CREATE",
+                "AGENT_READ",
+                "AGENT_UPDATE"
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Vlad",
+            "permissions": [
+                "AGENT_READ"
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Pacman",
+            "permissions": [
+                "AGENT_READ"
+            ]
+        }
+    ],
+    "permissions": [
+        {
+            "id": "AGENT_CREATE"
+        },
+        {
+            "id": "AGENT_READ"
+        },
+        {
+            "id": "AGENT_UPDATE"
+        }
+    ],
+    "samtypes": [
+        {
+            "id": 1,
+            "name": "SAM:1"
+        },
+        {
+            "id": 2,
+            "name": "SAM:2"
+        },
+        {
+            "id": 3,
+            "name": "SAM:3"
+        }
+    ]
+}

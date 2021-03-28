@@ -11,3 +11,37 @@ yarn install
 ....
 npx apollo client:download-schema --endpoint=http://localhost:4000 schema.graphql
 ....
+
+== Arch
+
+[source,raw]
+....
+             ▼ 4000
+       ┌──────────┐        ┌──────────┐
+       │ Gateway  ├───────►│ Keycloak │
+       └──┬─────┬─┘        └──────────┘
+          │     │
+     4001 ▼     ▼ 4002
+┌──────────┐  ┌──────────┐
+│ Adapter  │  │ Bogos    │
+└────┬─────┘  └──────────┘
+     │ 
+     ▼ 4005
+┌──────────┐
+│ Bixxi    │
+└──────────┘
+....
+
+Notes:
+* Bogos needs to expose federation compliant graphql...
+
+== References
+
+Federation/Gateway
+* https://www.apollographql.com/docs/federation/
+* https://github.com/mandiwise/space-camp-federation-demo
+* https://github.com/mandiwise/apollo-federation-auth-demo/blob/172fb41c02ea5d3d9423569055d4664b15b0095f/index.js#L19
+* https://www.apollographql.com/docs/federation/api/apollo-gateway/`
+
+Keycloak
+* https://github.com/keycloak/keycloak-nodejs-connect
