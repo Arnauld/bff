@@ -28,3 +28,4 @@ nc -kl 8765
 
 * https://github.com/keycloak/keycloak-containers/blob/master/docker-compose-examples/keycloak-postgres.yml
 * https://suedbroecker.net/2020/08/04/how-to-create-a-new-realm-with-the-keycloak-rest-api/
+* https://www.keycloak.org/getting-started/getting-started-docker
