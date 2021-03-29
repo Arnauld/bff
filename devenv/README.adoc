@@ -6,6 +6,16 @@ export COMPOSE_PROJECT_NAME=bff
 docker-compose up -d
 ....
 
+== Debug
+
+In `devenv/`
+
+[source,bash]
+....
+docker build init-keycloak -t devenv/keycloak
+docker run -v $(pwd)/init-keycloak:/scripts --entrypoint /bin/bash --network bff_default -e KEYCLOAK_HOST=keycloak -e KEYCLOAK_PORT=8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASS=Pa55w0rd -e KEYCLOAK_REALM=Woot -it devenv/keycloak
+....
+
 
 == Snif network
 
