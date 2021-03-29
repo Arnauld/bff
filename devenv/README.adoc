@@ -1,0 +1,20 @@
+== Docker Compose
+
+[source,bash]
+....
+export COMPOSE_PROJECT_NAME=bff
+docker-compose up -d
+....
+
+
+== Snif network
+
+[source,bash]
+....
+nc -kl 8765
+....
+
+== References
+
+* https://github.com/keycloak/keycloak-containers/blob/master/docker-compose-examples/keycloak-postgres.yml
+* https://suedbroecker.net/2020/08/04/how-to-create-a-new-realm-with-the-keycloak-rest-api/
