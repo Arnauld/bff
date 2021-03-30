@@ -6,16 +6,26 @@ import time
 import json
 
 
+def get_env(varname):
+    value = os.getenv(varname)
+    if not value:
+        raise Exception(f'Undefined environment variable "{varname}"')
+    return value
+
+
 def config():
-    host = os.getenv('KEYCLOAK_HOST')
-    port = os.getenv('KEYCLOAK_PORT')
-    return {'user': os.getenv('KEYCLOAK_USER'),
-            'pass': os.getenv('KEYCLOAK_PASS'),
+    host = get_env('KEYCLOAK_HOST')
+    port = get_env('KEYCLOAK_PORT')
+    username = get_env('KEYCLOAK_USER')
+    password = get_env('KEYCLOAK_PASS')
+    realm = get_env('KEYCLOAK_REALM')
+    return {'user': username,
+            'pass': password,
             'baseUrl': f"http://{host}:{port}",
-            'realm': os.getenv('KEYCLOAK_REALM')}
+            'realm': realm}
 
 
-def wait_keycloak(params, retry_count=10, retry_delay_in_sec=0.500):
+def wait_keycloak(params, retry_count=100, retry_delay_in_sec=0.500):
     creds = {'grant_type': 'password',
              'client_id': 'admin-cli',
              'username': params['user'],
@@ -46,9 +56,16 @@ def post(cfg, path, data):
     headers = {'Authorization': 'Bearer ' + cfg['access_token'],
                'Accept': 'application/json',
                'Content-Type': 'application/json'}
-    response = requests.post(
-        f"{cfg['baseUrl']}{path}", json=data, headers=headers)
-    response.raise_for_status()  # raise an exception if the request was unsuccessful
+    url = f"{cfg['baseUrl']}{path}"
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()  # raise an exception if the request was unsuccessful
+    except Exception as e:
+        print(f"POST {url}")
+        print(f"headers: {headers}")
+        print(f"BODY: {data}")
+        raise e
+
 
 
 def put(cfg, path, data):
