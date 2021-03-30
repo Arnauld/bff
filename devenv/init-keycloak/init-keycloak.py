@@ -22,7 +22,8 @@ def config():
     return {'user': username,
             'pass': password,
             'baseUrl': f"http://{host}:{port}",
-            'realm': realm}
+            'realm': realm,
+            'client': 'futurama-web'}
 
 
 def wait_keycloak(params, retry_count=100, retry_delay_in_sec=0.500):
@@ -85,10 +86,16 @@ def get(cfg, path):
         f"{cfg['baseUrl']}{path}", headers=headers)
 
 
+
 def realm_exists(cfg, realm):
     response = get(cfg, f'/auth/admin/realms/{realm}')
     return response.status_code == requests.codes.ok
 
+
+def client_exists(cfg, realm, clientId):
+    response = get(cfg, f'/auth/admin/realms/{realm}/clients/{realm + ":" + client}')
+    print(f"Client {clientId} exists? {response.status_code}")
+    return response.status_code == requests.codes.ok
 
 if __name__ == '__main__':
     cfg = config()
@@ -97,7 +104,11 @@ if __name__ == '__main__':
     # print(access_token)
 
     realm = cfg['realm']
+    client = cfg['client']
 
+    print("====================================")
+    print("    REALM")
+    print("====================================")
     with open('realm.json') as json_file:
         data = json.load(json_file)
     data['id'] = realm
@@ -108,3 +119,20 @@ if __name__ == '__main__':
     else:
         put(cfg, f'/auth/admin/realms/{realm}', data)
         print(f'Realm "{realm}" updated')
+    print()
+
+    print("====================================")
+    print("    CLIENT")
+    print("====================================")
+    with open('client.json') as json_file:
+        data = json.load(json_file)
+    data['id'] = realm + ":" + client
+    data['clientId'] = client
+    if not client_exists(cfg, realm, client):
+        post(cfg, f'/auth/admin/realms/{realm}/clients', data)
+        print(f'Client "{client}" created')
+    else:
+        put(cfg,  f'/auth/admin/realms/{realm}/clients/{realm + ":" + client}', data)
+        print(f'Client "{client}" updated')
+
+
