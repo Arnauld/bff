@@ -1,8 +1,9 @@
 == Docker Compose
 
+@see `.env` for shared environment variables.
+
 [source,bash]
 ....
-export COMPOSE_PROJECT_NAME=bff
 docker-compose up -d
 ....
 
