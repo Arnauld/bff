@@ -17,6 +17,12 @@ docker build init-keycloak -t devenv/keycloak
 docker run -v $(pwd)/init-keycloak:/scripts --entrypoint /bin/bash --network bff_default --env-file .env -it devenv/keycloak
 ....
 
+[source,bash]
+....
+docker-compose run postgres_app ls -lart /docker-entrypoint-initdb.d/
+docker exec -it bff_postgres_app_1 /bin/bash
+....
+
 
 == Snif network
 
