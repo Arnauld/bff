@@ -18,10 +18,12 @@ public class CustomUserStorageProvider implements UserStorageProvider, UserLooku
     private final Logger logger = Logger.getLogger(CustomUserStorageProvider.class);
     private final KeycloakSession ksession;
     private final ComponentModel model;
+    private final JdbcUsers users;
 
     public CustomUserStorageProvider(KeycloakSession ksession, ComponentModel model) {
         this.ksession = ksession;
         this.model = model;
+        this.users = new JdbcUsers(model);
     }
 
     /**
