@@ -7,7 +7,7 @@ services:
     # rely on .env variables
     environment:
       DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
+      DB_ADDR: postgres_keycloak
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
