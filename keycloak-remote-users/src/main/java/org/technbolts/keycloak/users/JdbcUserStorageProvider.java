@@ -6,6 +6,7 @@ import org.keycloak.credential.CredentialInputValidator;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
@@ -13,17 +14,18 @@ import org.keycloak.storage.user.UserQueryProvider;
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class CustomUserStorageProvider implements UserStorageProvider, UserLookupProvider, CredentialInputValidator, UserQueryProvider {
+public class JdbcUserStorageProvider
+        implements UserStorageProvider, UserLookupProvider, CredentialInputValidator, UserQueryProvider {
 
-    private final Logger logger = Logger.getLogger(CustomUserStorageProvider.class);
+    private final Logger logger = Logger.getLogger(JdbcUserStorageProvider.class);
     private final KeycloakSession ksession;
     private final ComponentModel model;
-    private final JdbcUsers users;
+    private final Users users;
 
-    public CustomUserStorageProvider(KeycloakSession ksession, ComponentModel model) {
+    public JdbcUserStorageProvider(KeycloakSession ksession, ComponentModel model, Users users) {
         this.ksession = ksession;
         this.model = model;
-        this.users = new JdbcUsers(model);
+        this.users = users;
     }
 
     /**
@@ -31,8 +33,9 @@ public class CustomUserStorageProvider implements UserStorageProvider, UserLooku
      */
     @Override
     public UserModel getUserById(String id, RealmModel realmModel) {
+        StorageId storageId = StorageId.
         logger.infof("Lookup user by id: '%s'", id);
-        return null;
+        return users.findById(id);
     }
 
     /**

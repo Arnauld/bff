@@ -1,2 +1,2 @@
 # SPI class implementation
-org.technbolts.keycloak.users.CustomUserStorageProviderFactory
+org.technbolts.keycloak.users.JdbcUserStorageProviderFactory
