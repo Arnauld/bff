@@ -13,22 +13,26 @@ import java.util.List;
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class CustomUserStorageProviderFactory implements UserStorageProviderFactory<CustomUserStorageProvider> {
-    private final Logger logger = Logger.getLogger(CustomUserStorageProviderFactory.class);
+public class JdbcUserStorageProviderFactory implements UserStorageProviderFactory<JdbcUserStorageProvider> {
+    private final Logger logger = Logger.getLogger(JdbcUserStorageProviderFactory.class);
     private final List<ProviderConfigProperty> providerConfigProperties;
 
-    public CustomUserStorageProviderFactory() {
-        providerConfigProperties = Config.newConfigMetadata();
+    public JdbcUserStorageProviderFactory() {
+        this.providerConfigProperties = Config.newConfigMetadata();
     }
 
     @Override
     public String getId() {
-        return "custom-user-provider";
+        return "jdbc-user-provider";
     }
 
     @Override
-    public CustomUserStorageProvider create(KeycloakSession ksession, ComponentModel model) {
-        return new CustomUserStorageProvider(ksession, model);
+    public JdbcUserStorageProvider create(KeycloakSession ksession, ComponentModel model) {
+        return new JdbcUserStorageProvider(ksession, model, createUsers(model));
+    }
+
+    protected JdbcUsers createUsers(ComponentModel model) {
+        return new JdbcUsers(model);
     }
 
     @Override
@@ -38,8 +42,7 @@ public class CustomUserStorageProviderFactory implements UserStorageProviderFact
 
     @Override
     public void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel config) throws ComponentValidationException {
-        try {
-            JdbcUsers users = new JdbcUsers(config);
+        try (JdbcUsers users = createUsers(config)) {
             users.checkConfig();
         } catch (Exception ex) {
             logger.warnf(ex, "Error while validating config");
