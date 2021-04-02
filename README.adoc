@@ -1,0 +1,49 @@
+== Setup
+
+`keycloak-remote-user/`
+[source,bash]
+....
+mvn clean package
+....
+
+`dev-env/`
+[source,bash]
+....
+docker-compose up -d
+....
+
+
+Connect into keycloak container to deploy our custom "User Storage SPI":
+
+[source, bash]
+....
+$ docker exec -it bff_keycloak_1 /bin/bash
+bash-4.4$ cd
+bash-4.4$ cd keycloak/standalone/deployments/
+bash-4.4$ cp /plugins/ear/target/keycloak-remote-user.ear .
+bash-4.4$ ls
+keycloak-remote-user.ear  keycloak-remote-user.ear.deployed  README.txt
+....
+
+In keycloak:
+
+* http://localhost:8080/ - admin/Pa55w0rd
+* User Federation / "Add provider..." > "jdbc-user-provider"
+* jdbcURL: (within docker network: postgres_app:5432)
+
+Debug
+
+[source, bash]
+....
+docker logs -f bff_keycloak_1
+....
+
+Troubleshooting
+
+[source, bash]
+....
+docker-compose down
+docker container prune
+docker volume prune
+docker-compose build
+....
