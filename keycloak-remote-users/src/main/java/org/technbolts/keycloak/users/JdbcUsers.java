@@ -1,20 +1,21 @@
 package org.technbolts.keycloak.users;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserModel;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.concurrent.TimeUnit;
+import java.sql.*;
 
 public class JdbcUsers implements Users, AutoCloseable {
-    private final ComponentModel config;
-    private HikariDataSource dataSource;
+    private final Logger logger = Logger.getLogger(JdbcUsers.class);
 
-    public JdbcUsers(ComponentModel config) {
+    private final ComponentModel config;
+    private final ConnectionProvider connectionProvider;
+
+    public JdbcUsers(ComponentModel config, ConnectionProvider connectionProvider) {
         this.config = config;
+        this.connectionProvider = connectionProvider;
     }
 
     public void checkConfig() throws SQLException {
@@ -24,28 +25,47 @@ public class JdbcUsers implements Users, AutoCloseable {
         }
     }
 
-    synchronized Connection openConnection() throws SQLException {
-        if (dataSource == null) {
-            HikariConfig cfg = new HikariConfig();
-            cfg.setJdbcUrl(config.get(Config.CONFIG_KEY_JDBC_URL));
-            cfg.setUsername(config.get(Config.CONFIG_KEY_DB_USERNAME));
-            cfg.setPassword(config.get(Config.CONFIG_KEY_DB_PASSWORD));
-            cfg.setMaximumPoolSize(10);
-            cfg.setMinimumIdle(0);
-            cfg.setIdleTimeout(TimeUnit.MINUTES.toMillis(1));
-            cfg.addDataSourceProperty("cachePrepStmts", "true");
-            cfg.addDataSourceProperty("prepStmtCacheSize", "250");
-            cfg.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
-            dataSource = new HikariDataSource(cfg);
-        }
-        return dataSource.getConnection();
+    private Connection openConnection() throws SQLException {
+        return connectionProvider.openConnection();
     }
 
     @Override
-    public void close() throws Exception {
-        if(dataSource!=null) {
-            dataSource.close();
+    public void close() {
+        connectionProvider.dispose();
+    }
+
+    @Override
+    public UserModel findByUsername(RealmModel realm, String username) {
+        return findUnique(realm,
+                "select * from users where username = ?",
+                pstmt -> pstmt.setString(1, username));
+    }
+
+    private UserModel findUnique(RealmModel realm, String sql, PreparedStatementCallback prepareStmt) {
+        try (Connection c = openConnection();
+             PreparedStatement st = c.prepareStatement(sql)) {
+            prepareStmt.prepare(st);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return mapUser(realm, rs);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+
+            return null;
         }
     }
+
+    private UserModel mapUser(RealmModel realm, ResultSet rs) throws SQLException {
+        CustomUser user = new CustomUser.Builder(ksession, realm, model, rs.getString("username"))
+                .email(rs.getString("email"))
+                .firstName(rs.getString("firstName"))
+                .lastName(rs.getString("lastName"))
+                .birthDate(rs.getDate("birthDate"))
+                .build();
+
+        return user;
+    }
+
 }
