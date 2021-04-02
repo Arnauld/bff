@@ -7,75 +7,10 @@
     <groupId>org.technbolts</groupId>
     <artifactId>keycloak-remote-users</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <packaging>ear</packaging>
-
-    <!-- ========================================================= -->
-    <!-- PROPERTIES -->
-    <!-- ========================================================= -->
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-
-        <keycloak.version>12.0.4</keycloak.version>
-    </properties>
-
-    <!-- ========================================================= -->
-    <!-- DEPENDENCIES -->
-    <!-- ========================================================= -->
-    <dependencies>
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-core</artifactId>
-            <version>${keycloak.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-server-spi</artifactId>
-            <version>${keycloak.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.16</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>4.0.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-            <version>3.4.1.Final</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
-    <!-- ========================================================= -->
-    <!-- BUILD -->
-    <!-- ========================================================= -->
-    <build>
-        <finalName>keycloak-remote-user</finalName>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-ear-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <version>7</version>
-                    <defaultLibBundleDir>lib</defaultLibBundleDir>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    <packaging>pom</packaging>
+    <modules>
+        <module>lib</module>
+        <module>ear</module>
+    </modules>
 
 </project>
