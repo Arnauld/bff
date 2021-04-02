@@ -1,4 +1,4 @@
-package org.technbolts.keycloak.users;
+package org.technbolts.keycloak.users.jdbc;
 
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
