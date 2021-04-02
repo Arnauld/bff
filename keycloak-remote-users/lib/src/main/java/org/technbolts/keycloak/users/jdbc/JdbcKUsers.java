@@ -162,8 +162,7 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
                 rs.getString("username"),
                 rs.getString("email"),
                 rs.getString("firstname"),
-                rs.getString("lastname"),
-                rs.getDate("birthdate"));
+                rs.getString("lastname"));
     }
 
 }
