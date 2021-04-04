@@ -1,5 +1,6 @@
 package org.technbolts.keycloak.users;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
@@ -94,6 +95,7 @@ public class KUsersStorageProvider
 
         StorageId sid = new StorageId(user.getId());
         String username = sid.getExternalId();
+
         return kUsers.updatePassword(realm, username, input.getChallengeResponse());
     }
 

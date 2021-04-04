@@ -1,5 +1,6 @@
 package org.technbolts.keycloak.users.jdbc;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.jboss.logging.Logger;
 import org.json.JSONObject;
 import org.keycloak.component.ComponentModel;
@@ -69,7 +70,7 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
     public UserModel findByEmail(RealmModel realm, String email) {
         try {
             return withConnection(c -> findFirst(c,
-                    "select * from users where LOWER(email) = ?",
+                    "select * from users where lower(data->>'email') = ?",
                     pstmt -> pstmt.setString(1, email.toLowerCase()),
                     mapUser(realm)));
         } catch (SQLException e) {
@@ -100,10 +101,17 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
     public boolean isPasswordValid(RealmModel realm, String username, String password) {
         logger.infof("About to validate password of '%s' with '%s'", username, password);
         try {
-            String pwd = withConnection(c -> findFirst(c, "select password from users where username = ?",
+            String hashedPassword = withConnection(c -> findFirst(c, "select password from users where username = ?",
                     pstmt -> pstmt.setString(1, username),
                     rs -> rs.getString(1)));
-            return pwd != null && pwd.equalsIgnoreCase(password);
+            if (hashedPassword != null) {
+                BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), hashedPassword);
+                if (!result.validFormat) {
+                    logger.warnf("Invalid password hash format for user %s: %s", username, result.formatErrorMessage);
+                }
+                return result.verified;
+            }
+            return false;
         } catch (SQLException e) {
             logger.warnf(e, "Failed to validate password for user '%s'", username);
             throw new RuntimeException("Failed to validate password for user '" + username + "'", e);
@@ -112,13 +120,17 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
 
     @Override
     public boolean updatePassword(RealmModel realm, String username, String newPassword) {
-        logger.infof("About to update password of '%s' with '%s'", username, newPassword);
+        String hashedPassword = BCrypt.withDefaults().hashToString(10, newPassword.toCharArray());
+        logger.infof("About to update password of '%s' with hashed password '%s'", username, hashedPassword);
         try {
             return withConnection(c -> {
                 try (PreparedStatement st = c.prepareStatement("update users set password = ? where username = ?")) {
-                    st.setString(1, username);
-                    st.setString(2, newPassword);
+                    st.setString(1, hashedPassword);
+                    st.setString(2, username);
                     int nb = st.executeUpdate();
+                    logger.infof("Password update for user %s: %s", username, nb);
+                    if (nb == 0)
+                        throw new RuntimeException("Failed to update password for user '" + username + "'");
                     return nb > 0;
                 }
             });

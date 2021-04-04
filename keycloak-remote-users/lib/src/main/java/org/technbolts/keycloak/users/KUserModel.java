@@ -34,6 +34,9 @@ public class KUserModel extends UserModelDefaultMethods {
     private static final String SERVICE_ACCOUNT_CLIENT_LINK = "serviceAccountClientLink";
     private static final Set<String> FILTERED_KEYS =
             new HashSet<>(asList(REQUIRED_ACTIONS, FEDERATION_LINK, SERVICE_ACCOUNT_CLIENT_LINK));
+    private static final Set<String> SINGLE_ATTRIBUTES =
+            new HashSet<>(asList(EMAIL, FIRST_NAME, LAST_NAME, USERNAME));
+
     //
     private final KeycloakSession session;
     private final RealmModel realm;
@@ -66,6 +69,20 @@ public class KUserModel extends UserModelDefaultMethods {
     }
 
     public JSONObject data() {
+        // Single Attribute cleanup
+        for (String key : new HashSet<>(data.keySet())) {
+            if (SINGLE_ATTRIBUTES.contains(key)) {
+                Object o = data.opt(key);
+                if (o instanceof JSONArray) {
+                    JSONArray array = (JSONArray) o;
+                    if (array.isEmpty()) {
+                        data.remove(key);
+                    } else {
+                        data.put(key, array.get(0));
+                    }
+                }
+            }
+        }
         return data;
     }
 
@@ -219,6 +236,7 @@ public class KUserModel extends UserModelDefaultMethods {
     @Override
     public void addRequiredAction(String action) {
         LOG.infof("Add required action '%s'", action);
+        JSONArray array = data.optJSONArray(REQUIRED_ACTIONS);
         data.append(REQUIRED_ACTIONS, action);
         markModifed();
     }
