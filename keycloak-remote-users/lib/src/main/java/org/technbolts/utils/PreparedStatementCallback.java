@@ -1,4 +1,4 @@
-package org.technbolts.keycloak.users.jdbc;
+package org.technbolts.utils;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

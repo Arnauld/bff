@@ -1,7 +1,5 @@
 package org.technbolts.keycloak.users.jdbc;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
@@ -10,9 +8,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.storage.UserStorageProviderFactory;
 import org.technbolts.keycloak.users.KUsersStorageProvider;
+import org.technbolts.utils.DataSourceCache;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
 
@@ -21,10 +18,13 @@ import java.util.List;
  */
 public class JdbcKUserStorageProviderFactory implements UserStorageProviderFactory<KUsersStorageProvider> {
     private final Logger logger = Logger.getLogger(JdbcKUserStorageProviderFactory.class);
+
     private final List<ProviderConfigProperty> providerConfigProperties;
+    private final DataSourceCache dataSourceCache;
 
     public JdbcKUserStorageProviderFactory() {
         this.providerConfigProperties = Config.newConfigMetadata();
+        this.dataSourceCache = new DataSourceCache(Duration.ofMinutes(3)); // Assume the expiration duration is greater than the usage duration
     }
 
     @Override
@@ -34,12 +34,16 @@ public class JdbcKUserStorageProviderFactory implements UserStorageProviderFacto
 
     @Override
     public KUsersStorageProvider create(KeycloakSession ksession, ComponentModel model) {
+        logger.infof("Creating new provider '%s'", ksession);
         return new KUsersStorageProvider(ksession, model, createUsers(ksession, model));
-
     }
 
     protected JdbcKUsers createUsers(KeycloakSession ksession, ComponentModel model) {
-        return new JdbcKUsers(ksession, model, initDataSource(model));
+        return new JdbcKUsers(ksession, model,
+                dataSourceCache.obtainDataSource(
+                        model.get(Config.CONFIG_KEY_JDBC_URL),
+                        model.get(Config.CONFIG_KEY_DB_USERNAME),
+                        model.get(Config.CONFIG_KEY_DB_PASSWORD)));
     }
 
     @Override
@@ -57,53 +61,4 @@ public class JdbcKUserStorageProviderFactory implements UserStorageProviderFacto
         }
     }
 
-    private HikariDataSource dataSource;
-    private String dataSourceKey;
-
-    protected synchronized DataSource initDataSource(ComponentModel config) {
-        String requiredKey = dataSourceKey(config);
-        if (dataSourceKey == null || !dataSourceKey.equalsIgnoreCase(requiredKey)) {
-            closeSilently(dataSource);
-            dataSource = null;
-            dataSourceKey = null;
-            try {
-                dataSource = openDataSource(config);
-                dataSourceKey = requiredKey;
-            } catch (SQLException e) {
-                logger.errorf(e, "Failed to open datasource");
-                throw new RuntimeException(e);
-            }
-        }
-        return dataSource;
-    }
-
-    private void closeSilently(HikariDataSource dataSource) {
-        try {
-            if (dataSource != null) {
-                dataSource.close();
-            }
-        } catch (Exception e) {
-            logger.warnf(e, "Error while closing datasource");
-        }
-    }
-
-    private final String dataSourceKey(ComponentModel config) {
-        return config.get(Config.CONFIG_KEY_JDBC_URL)
-                + "::" + config.get(Config.CONFIG_KEY_DB_USERNAME)
-                + "::" + config.get(Config.CONFIG_KEY_DB_PASSWORD);
-    }
-
-    protected HikariDataSource openDataSource(ComponentModel config) throws SQLException {
-        HikariConfig cfg = new HikariConfig();
-        cfg.setJdbcUrl(config.get(Config.CONFIG_KEY_JDBC_URL));
-        cfg.setUsername(config.get(Config.CONFIG_KEY_DB_USERNAME));
-        cfg.setPassword(config.get(Config.CONFIG_KEY_DB_PASSWORD));
-        cfg.addDataSourceProperty("cachePrepStmts", "true");
-        cfg.addDataSourceProperty("prepStmtCacheSize", "250");
-        cfg.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        cfg.setIdleTimeout(Duration.ofSeconds(25).toMillis());
-        cfg.setMaximumPoolSize(5);
-        cfg.setMinimumIdle(0);
-        return new HikariDataSource(cfg);
-    }
 }

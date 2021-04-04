@@ -1,4 +1,4 @@
-package org.technbolts.keycloak.users.jdbc;
+package org.technbolts.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

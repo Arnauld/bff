@@ -14,6 +14,7 @@ import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
+import org.keycloak.storage.user.UserRegistrationProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,8 @@ public class KUsersStorageProvider
         UserLookupProvider,
         UserQueryProvider,
         CredentialInputUpdater,
-        CredentialInputValidator {
+        CredentialInputValidator,
+        UserRegistrationProvider {
 
     private final Logger logger = Logger.getLogger(KUsersStorageProvider.class);
     private final KeycloakSession ksession;
@@ -43,7 +45,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link CredentialInputValidator}}
+     * {@link CredentialInputValidator}
      */
     @Override
     public boolean supportsCredentialType(String credentialType) {
@@ -53,7 +55,7 @@ public class KUsersStorageProvider
 
 
     /**
-     * {{@link CredentialInputValidator}}
+     * {@link CredentialInputValidator}
      */
     @Override
     public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
@@ -64,7 +66,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link CredentialInputValidator}}
+     * {@link CredentialInputValidator}
      */
     @Override
     public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
@@ -82,7 +84,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link CredentialInputUpdater}}
+     * {@link CredentialInputUpdater}
      */
     @Override
     public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
@@ -96,7 +98,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link CredentialInputUpdater}}
+     * {@link CredentialInputUpdater}
      */
     @Override
     public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
@@ -104,7 +106,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link CredentialInputUpdater}}
+     * {@link CredentialInputUpdater}
      */
     @Override
     public Set<String> getDisableableCredentialTypes(RealmModel realm, UserModel user) {
@@ -112,7 +114,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link UserLookupProvider}}
+     * {@link UserLookupProvider}
      */
     @Override
     public UserModel getUserById(String id, RealmModel realmModel) {
@@ -122,7 +124,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link UserLookupProvider}}
+     * {@link UserLookupProvider}
      */
     @Override
     public UserModel getUserByUsername(String username, RealmModel realmModel) {
@@ -131,7 +133,7 @@ public class KUsersStorageProvider
     }
 
     /**
-     * {{@link UserLookupProvider}}
+     * {@link UserLookupProvider}
      */
     @Override
     public UserModel getUserByEmail(String email, RealmModel realmModel) {
@@ -139,41 +141,66 @@ public class KUsersStorageProvider
         return kUsers.findByEmail(realmModel, email);
     }
 
+    /**
+     * {@link org.keycloak.provider.Provider}
+     */
     @Override
     public void close() {
+        kUsers.flush();
+        logger.infof("Closing provider");
     }
 
-
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> getUsers(RealmModel realm) {
         return getUsers(realm, 0, Integer.MAX_VALUE);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public int getUsersCount(RealmModel realm) {
         return kUsers.count(realm);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> getUsers(RealmModel realm, int firstResult, int maxResults) {
         return kUsers.search(realm, new SearchCriteria(), firstResult, maxResults);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> searchForUser(String search, RealmModel realm) {
         return searchForUser(search, realm, 0, 100);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> searchForUser(String search, RealmModel realm, int firstResult, int maxResults) {
         return kUsers.search(realm, new SearchCriteria().withSearch(search), firstResult, maxResults);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm) {
         return searchForUser(params, realm, 0, 100);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, int firstResult, int maxResults) {
         return kUsers.search(realm,
@@ -186,11 +213,17 @@ public class KUsersStorageProvider
                 , firstResult, maxResults);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group) {
         return getGroupMembers(realm, group, 0, Integer.MAX_VALUE);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group, int firstResult, int maxResults) {
         return kUsers.search(realm,
@@ -198,10 +231,29 @@ public class KUsersStorageProvider
                 firstResult, maxResults);
     }
 
+    /**
+     * {@link UserQueryProvider}
+     */
     @Override
     public List<UserModel> searchForUserByUserAttribute(String attrName, String attrValue, RealmModel realm) {
         return kUsers.search(realm,
                 new SearchCriteria().withSearch(attrValue),
                 0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * {@link UserRegistrationProvider}
+     */
+    @Override
+    public UserModel addUser(RealmModel realm, String username) {
+        return kUsers.addUser(realm, username);
+    }
+
+    /**
+     * {@link UserRegistrationProvider}
+     */
+    @Override
+    public boolean removeUser(RealmModel realm, UserModel user) {
+        return kUsers.removeUser(realm, user);
     }
 }

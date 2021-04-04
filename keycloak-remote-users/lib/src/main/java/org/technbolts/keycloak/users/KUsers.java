@@ -18,4 +18,10 @@ public interface KUsers {
     int count(RealmModel realm);
 
     List<UserModel> search(RealmModel realm, SearchCriteria criteria, int firstResult, int maxResults);
+
+    UserModel addUser(RealmModel realm, String username);
+
+    boolean removeUser(RealmModel realm, UserModel user);
+
+    void flush();
 }
