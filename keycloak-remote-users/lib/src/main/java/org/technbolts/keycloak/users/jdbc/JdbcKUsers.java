@@ -92,7 +92,7 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
     private UserModel findByUsername(RealmModel realm, Connection sql, String username) throws SQLException {
         return findFirst(
                 sql,
-                "select * from users where username = ?",
+                "select * from users where lower(username) = ?",
                 pstmt -> pstmt.setString(1, username),
                 mapUser(realm));
     }
