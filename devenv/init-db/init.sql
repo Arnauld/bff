@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     data           JSONB NOT NULL DEFAULT '{}'::JSONB
 );
 
-CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_email    ON users USING GIN ((data->'email'));
+CREATE UNIQUE INDEX idx_users_username ON users USING GIN (username);
+CREATE UNIQUE INDEX idx_users_email    ON users USING GIN ((lower(data->'email')));
 
 CREATE extension pgcrypto;
 
