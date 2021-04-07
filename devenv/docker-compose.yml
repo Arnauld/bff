@@ -31,6 +31,8 @@ services:
     build: init-keycloak/
     links:
       - keycloak
+    env_file:
+      - .env
     # rely on .env variables
 
   postgres_keycloak:
