@@ -93,7 +93,7 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
         return findFirst(
                 sql,
                 "select * from users where lower(username) = ?",
-                pstmt -> pstmt.setString(1, username),
+                pstmt -> pstmt.setString(1, username.toLowerCase()),
                 mapUser(realm));
     }
 
