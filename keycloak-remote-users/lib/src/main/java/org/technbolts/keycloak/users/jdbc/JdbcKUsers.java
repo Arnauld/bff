@@ -157,6 +157,8 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
 
     @Override
     public List<UserModel> search(RealmModel realm, SearchCriteria criteria, int firstResult, int maxResults) {
+        logger.infof("Searching users %s (%s/%s)", criteria.search(), firstResult, maxResults);
+
         String sql = "select * from users";
         StringBuilder crit = new StringBuilder();
         List<String> params = new ArrayList<>();
@@ -165,14 +167,17 @@ public class JdbcKUsers implements KUsers, AutoCloseable {
             params.add(criteria.search());
         }
 
-        if (crit.length() > 0)
+        if (crit.length() > 0) {
             sql = sql + " where " + crit.toString();
+        }
 
         sql = sql + " order by id ";
-        if (firstResult > 0)
+        if (firstResult > 0) {
             sql = sql + " offset " + firstResult;
-        if (maxResults != Integer.MAX_VALUE)
+        }
+        if (maxResults != Integer.MAX_VALUE) {
             sql = sql + " limit " + maxResults;
+        }
 
         try {
             String effectiveSql = sql;
