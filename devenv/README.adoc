@@ -23,9 +23,11 @@ docker kill -s HUP bff_haproxy_1
 
 === Gateway
 
+Start a container that will expose service ports, and will be resolved by docker DNS:
+
 [source,raw]
 ....
-$ docker-compose -f docker-compose.gateway.yml run gateway
+$ docker-compose -f docker-compose.gateway.yml run --service-ports --use-aliases gateway
 Creating bff_gateway_run ... done
 / # cd gateway/
 /gateway # npm run server
