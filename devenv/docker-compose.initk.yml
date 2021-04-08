@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  init-keycloak:
+    build: init-keycloak/
+    external_links:
+      - "${COMPOSE_PROJECT_NAME}_keycloak_1:keycloak"
+    env_file:
+      - .env
+    volumes:
+      - ./init-keycloak:/scripts
+    # rely on .env variables

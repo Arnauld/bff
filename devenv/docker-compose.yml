@@ -33,6 +33,8 @@ services:
       - keycloak
     env_file:
       - .env
+    volumes:
+      - ./init-keycloak:/scripts
     # rely on .env variables
 
   postgres_keycloak:

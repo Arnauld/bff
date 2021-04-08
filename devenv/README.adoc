@@ -5,6 +5,7 @@
 [source,bash]
 ....
 docker-compose up -d
+./init-keycloak.sh
 ....
 
 == Debug
