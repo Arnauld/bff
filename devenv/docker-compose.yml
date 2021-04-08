@@ -61,6 +61,13 @@ services:
     ports:
       - "${PG_APP_PORT}:5432"
 
+  haproxy:
+    image: haproxy:2.3.9
+    ports:
+      - "${PROXY_PORT}:80"
+    volumes: 
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
 volumes:
   postgres_keycloak_data:
       driver: local

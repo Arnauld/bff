@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  gateway:
+    image: node:14.16.1-alpine3.13
+    # start the container... do nothing... but stay alive
+    # ... with 'gateway' in docker DNS resolution
+    entrypoint: /bin/sh
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    ports:
+      - "${GATEWAY_PORT}:4000"
+    volumes: 
+      - ../gateway:/gateway

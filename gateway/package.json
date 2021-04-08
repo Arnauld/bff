@@ -3,30 +3,38 @@
   "version": "1.0.0",
   "description": "",
   "main": "gateway.js",
-  "keywords": ["apollo", "gateway", "federation"],
+  "keywords": [
+    "apollo",
+    "gateway",
+    "federation"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@apollo/federation": "^0.22.0",
     "@apollo/gateway": "^0.25.0",
     "apollo-server": "^2.22.1",
-    "concurrently": "^6.0.0",
-    "graphql": "^15.5.0",
+    "apollo-server-express": "^2.22.2",
+    "express-session": "^1.17.1",
+    "graphql": "^14.0.0",
     "json-server": "^0.16.3",
-    "node-fetch": "^2.6.1",
-    "nodemon": "^2.0.7"
+    "keycloak-connect": "12.0.4",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "apollo": "^2.32.5"
+    "apollo": "^2.32.5",
+    "concurrently": "^6.0.0",
+    "nodemon": "^2.0.7"
   },
   "resolutions": {
-    "graphql": "^15.5.0"
+    "graphql": "^14.0.0"
   },
   "scripts": {
     "server": "concurrently -k npm:server:*",
-    "server:bixxi": "json-server -q db.json --port 4005",
-    "server:adapter": "nodemon adapter.js",
-    "server:bogos": "nodemon bogos.js",
-    "server:gateway": "nodemon gateway.js"
+    "server:bixxi": "json-server -q services/bixxi/db.json --port 4005",
+    "server:adapter": "nodemon services/adapter/index.js",
+    "server:bogos": "nodemon services/bogos/index.js",
+    "server:gateway": "nodemon gateway.js",
+    "keycloak:seed": "node scripts/init-keycloak.js"
   }
 }

@@ -8,6 +8,31 @@ docker-compose up -d
 ./init-keycloak.sh
 ....
 
+=== Haproxy
+
+stats: http://localhost:8000/haproxy/
+
+To reload the configuration: 
+
+[source,bash]
+....
+docker kill -s HUP bff_haproxy_1
+....
+
+**WARN**: It may be required if one of `keycloak` and `gateway` was not available when HAproxy was started.
+
+=== Gateway
+
+[source,raw]
+....
+$ docker-compose -f docker-compose.gateway.yml run gateway
+Creating bff_gateway_run ... done
+/ # cd gateway/
+/gateway # npm run server
+...
+....
+
+
 == Debug
 
 In `devenv/`
